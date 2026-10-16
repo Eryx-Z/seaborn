@@ -475,6 +475,15 @@ class TestHeatmap:
             bad_df_mask = pd.DataFrame(self.rs.randn(4, 8) > 0)
             mat._matrix_mask(self.df_norm, bad_df_mask)
 
+        # Mismatched columns alone must also raise (not only mismatched index).
+        # Regression for operator-precedence bug in the DataFrame check.
+        data = pd.DataFrame([[1, 2], [3, 4]], index=["a", "b"], columns=["x", "y"])
+        mask_bad_cols = pd.DataFrame(
+            [[True, False], [False, True]], index=["a", "b"], columns=["w", "z"]
+        )
+        with pytest.raises(ValueError, match="same index and columns"):
+            mat._matrix_mask(data, mask_bad_cols)
+
     def test_missing_data_mask(self):
 
         data = pd.DataFrame(np.arange(4, dtype=float).reshape(2, 2))

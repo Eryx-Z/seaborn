@@ -71,8 +71,8 @@ def _matrix_mask(data, mask):
 
     if isinstance(mask, pd.DataFrame):
         # For DataFrame masks, ensure that semantic labels match data
-        if not mask.index.equals(data.index) \
-           and mask.columns.equals(data.columns):
+        if not (mask.index.equals(data.index)
+                and mask.columns.equals(data.columns)):
             err = "Mask must have the same index and columns as data."
             raise ValueError(err)
     elif hasattr(mask, "__array__"):
