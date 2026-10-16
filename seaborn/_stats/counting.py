@@ -172,8 +172,9 @@ class Hist(Stat):
         vals = data[orient]
         weights = data.get("weight", None)
 
-        density = self.stat == "density"
-        hist, edges = np.histogram(vals, **bin_kws, weights=weights, density=density)
+        # Always compute raw counts; density normalization happens in _normalize
+        # so common_norm can weight groups by relative sample size.
+        hist, edges = np.histogram(vals, **bin_kws, weights=weights, density=False)
 
         width = np.diff(edges)
         center = edges[:-1] + width / 2
@@ -187,6 +188,8 @@ class Hist(Stat):
             hist = hist.astype(float) / hist.sum()
         elif self.stat == "percent":
             hist = hist.astype(float) / hist.sum() * 100
+        elif self.stat == "density":
+            hist = hist.astype(float) / (hist.sum() * data["space"])
         elif self.stat == "frequency":
             hist = hist.astype(float) / data["space"]
 

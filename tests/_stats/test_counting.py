@@ -7,6 +7,7 @@ from numpy.testing import assert_array_equal
 
 from seaborn._core.groupby import GroupBy
 from seaborn._stats.counting import Hist, Count
+from seaborn._core.scales import Continuous
 
 
 class TestCount:
@@ -182,6 +183,18 @@ class TestHist:
         h = Hist(stat="density", cumulative=True)
         out = h(long_df, *single_args)
         assert out["y"].max() == 1
+
+    def test_density_common_norm(self):
+        df = pd.DataFrame({
+            "x": [1, 2] * 5 + [1, 2] * 50,
+            "group": ["small"] * 10 + ["large"] * 100,
+        })
+        gb = GroupBy(["group"])
+        scales = {"x": Continuous()}
+        res = Hist(stat="density", common_norm=True)(df, gb, "x", scales)
+        small = res.loc[res["group"] == "small", "density"].iloc[0]
+        large = res.loc[res["group"] == "large", "density"].iloc[0]
+        assert np.isclose(large / small, 10.0)
 
     def test_common_norm_default(self, long_df, triple_args):
 
