@@ -2827,7 +2827,9 @@ def catplot(
     # Capture this here because scale_categorical is going to insert a (null)
     # x variable even if it is empty. It's not clear whether that needs to
     # happen or if disabling that is the cleaner solution.
-    has_xy_data = p.has_xy_data
+    # Also require non-empty plot_data: has_xy_data only checks that x/y are
+    # mapped, so an empty DataFrame with x=/y= columns would otherwise proceed.
+    has_xy_data = p.has_xy_data and not p.plot_data.empty
 
     if not native_scale or p.var_types[p.orient] == "categorical":
         p.scale_categorical(p.orient, order=order, formatter=formatter)

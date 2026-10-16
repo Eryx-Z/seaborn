@@ -2928,6 +2928,14 @@ class CategoricalFixture:
 
 class TestCatPlot(CategoricalFixture):
 
+    def test_empty_dataframe_with_xy(self):
+        # Axes-level plots already return early on empty data; catplot must too
+        # when x/y are mapped but plot_data has no rows.
+        df = pd.DataFrame(columns=["x", "y"])
+        for kind in ("strip", "swarm", "box", "violin", "boxen", "point", "bar"):
+            g = cat.catplot(data=df, x="x", y="y", kind=kind)
+            assert g.axes.shape == (1, 1)
+
     def test_facet_organization(self):
 
         g = cat.catplot(x="g", y="y", data=self.df)
